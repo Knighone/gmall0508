@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table id="spulist_dg" class="easyui-datagrid" title="spu列表"
+       data-options="singleSelect:true,toolbar:'#spulist_tb',collapsible:true">
+    <thead>
+    <tr>
+        <th data-options="field:'id'" width="10%">商品id</th>
+        <th data-options="field:'spuName'" width="30%">商品名称</th>
+        <th data-options="field:'description'" width="60%">商品描述</th>
+    </tr>
+    </thead>
+</table>
+<div id="spulist_tb">
+    <a  href="javascript:addSpuInfo();" class="easyui-linkbutton" data-options="iconCls:'icon-add'">添加</a>
+    <a  href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+    <a  href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    <a  href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="addSkuInfo();" >增加sku</a>
+    <a  href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="showSkuInfoList();" >sku列表</a>
+    <div>
+        <input id="ctg1ForSpuList" class="easyui-combobox" name="state" style="width: 100px;" data-options="
+        valueField: 'id',
+        textField: 'name',
+        url: 'getCatalog1',
+        onSelect: function(rec){
+            $('#ctg2ForSpuList').combobox('clear');
+            $('#ctg3ForSpuList').combobox('clear');
+            var url = 'getCatalog2?catalog1Id='+rec.id;
+            $('#ctg2ForSpuList').combobox('reload', url);
+        }" />
+        <input id="ctg2ForSpuList" class="easyui-combobox" name="state" style="width: 100px;" data-options="
+        valueField:'id',
+        textField:'name',
+        onSelect: function(rec){
+            $('#ctg3ForSpuList').combobox('clear');
+            var url = 'getCatalog3?catalog2Id='+rec.id;
+            $('#ctg3ForSpuList').combobox('reload', url);
+        }"/>
+        <input id="ctg3ForSpuList" class="easyui-combobox" name="state" style="width: 100px;"
+               data-options="
+        valueField:'id',
+        textField:'name',
+        "/>
+        <a href="javascript:reloadSpuList();"  class="easyui-linkbutton" data-options="iconCls:'icon-search'">刷新属性列表</a>
+    </div>
+
+</div>
+
+<div th:include="spuInfoPage" ></div>
+<div th:include="skuInfoPage" ></div>
+<div th:include="skuListPage" ></div>
+
+<script language="JavaScript">
+
+    function addSpuInfo() {
+        var catalog3Id = $("#ctg3ForSpuList").combobox("getValue");
+
+        $("#spu_dlg").dialog("open");
+        initSpuInfoDlg();
+    }
+
+    function reloadSpuList() {
+        var catalog3Id = $("#ctg3ForSpuList").combobox("getValue");
+        $("#spulist_dg").datagrid({
+            url:"getSpuListByCtg3?catalog3Id=" + catalog3Id
+        });
+    }
+
+    function addSkuInfo() {
+        $("#sku_dlg").dialog("open");
+        initSkuInfoDlg();
+    }
+
+    function showSkuInfoList() {
+        var spu = $("#spulist_dg").datagrid("getSelected");
+        $("#skulist_dlg").dialog("open");
+        initSkuListDlg(spu);
+    }
+
+</script>
+
+</body>
+</html>

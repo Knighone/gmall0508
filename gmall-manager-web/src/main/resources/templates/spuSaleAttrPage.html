@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="spuSaleAttr_dlg" class="easyui-dialog" title="编辑销售属性" style="width:500px;height:400px;"
+     closed="true"  data-options="iconCls:'icon-save',resizable:true,modal:false" buttons="#spuSaleAttrBtns">
+    <form id="spuForm">
+        <br/>
+        <br/>
+        <!------------------从基本销售属性中选择------------->
+        销售属性：  <select name="saleAttr" id="saleAttrSelect"  class="easyui-combobox" data-options="valueField:'id',textField:'name',url:'baseSaleAttrList'" style="width:100px">  </select>
+        <br/>
+        <br/>
+
+        <table id="spuSaleAttrValueDg" class="easyui-datagrid" title="销售属性值列表" data-options="singleSelect:true,method:'get',toolbar:'#spuSaleAttrValueToolbar'">
+
+
+        </table>
+        <!--<div id="spuSaleAttrValueToolbar" style="padding:5px;height:auto" >
+            <div style="margin-bottom:5px">
+                <a href="javascript:addSpuSaleAttrValue()" id="spuSaleAttrValueAddBtn" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+                <a href="javascript:removeSpuSaleAttrValue()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+            </div>
+        </div>-->
+    </form>
+</div>
+<div id="spuSaleAttrBtns">
+    <a href="javascript:saveSpuSaleAttr();" class="easyui-linkbutton">保存</a>
+    <a href="javascript:closeSpuSaleAttr();" class="easyui-linkbutton">关闭</a>
+</div>
+<script language="JavaScript">
+    function saveSpuSaleAttr(){
+        var saleAttrId = $("#saleAttrSelect").combobox("getValue");
+        var saleAttrName = $("#saleAttrSelect").combobox("getText");
+        var spuSaleAttrValueJson = $("#spuSaleAttrValueDg").datagrid("getData");
+
+        $("#spuSaleAttrDg").datagrid("appendRow",{
+            id:saleAttrId,
+            saleAttrName:saleAttrName,
+            saleAttrValueJson:spuSaleAttrValueJson
+        });
+        $("#spuSaleAttr_dlg").dialog("close");
+    }
+
+    function removeSpuSaleAttrValue() {
+        // 删除被选中的行
+        // 1 获得被选中的行 2 获得行索引 3 根据行索引删除当前行
+        var selectRow = $("#spuSaleAttrValueDg").datagrid("getSelected");
+        var rowIndex = $("#spuSaleAttrValueDg").datagrid("getRowIndex",selectRow);
+        $("#spuSaleAttrValueDg").datagrid("deleteRow",rowIndex);
+    }
+
+    function closeSpuSaleAttr() {
+        $("#spuSaleAttr_dlg").dialog("close");
+    }
+
+    function initSpuSaleAttrDlg() {
+        var spuSaleAttrValueDg=$("#spuSaleAttrValueDg").datagrid({url:""});
+
+        // 初始化销售属性值的行索引，否则销售属性值的行数据将相互覆盖
+        spuSaleAttrValueDg.datagrid('loadData', { total: 0, rows: [] });
+
+        datagrid = $('#spuSaleAttrValueDg').datagrid({
+            toolbar: [{
+                iconCls: 'icon-add',
+                handler: function(){$('#spuSaleAttrValueDg').datagrid('appendRow',{
+                    id:"",
+                    saleAttrValueName:"默认属性值"
+                });
+
+                }
+            },'-',{
+                iconCls: 'icon-remove',
+                handler: function(){var selectRow = $('#spuSaleAttrValueDg').datagrid('getSelected');
+                    var rowIndex = $('#spuSaleAttrValueDg').datagrid('getRowIndex', selectRow);
+                    $('#spuSaleAttrValueDg').datagrid('deleteRow', rowIndex);
+                }
+            }],
+
+            columns:[[
+                {field:'id',title:'属性值编号',width:100},
+                {field:'saleAttrValueName',title:'属性值名称',width:300,
+                    editor:{
+                        type: "validatebox",option:{
+                            required:true
+                        }
+                    }},
+            ]],
+            onDblClickRow:function(rowIndex, rowData) {
+                datagrid.datagrid("beginEdit", rowIndex);
+                //设定当失去焦点时,退出编辑状态
+                var valueName = rowData.saleAttrValueName;
+                $("input.datagrid-editable-input").val(valueName).bind("blur",function(evt){
+                    datagrid.datagrid('endEdit',rowIndex);
+                });
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
